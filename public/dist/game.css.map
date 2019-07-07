@@ -1,0 +1,1 @@
+{"version":3,"sources":["webpack:///./src/styles/game.scss"],"names":[],"mappings":"AAAA;AACA,8BAA8B","file":"game.css","sourcesContent":["body {\n  background-color: lightblue; }\n"],"sourceRoot":""}
