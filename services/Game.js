@@ -1,14 +1,13 @@
 const { delay } = require('../helpers/utils')
 const texts = require('../db/texts.json')
-const moment = require('moment')
 
 class Game {
   constructor () {
     this.initGames()
     this.startTimer = null
     this.endTimer = null
-    this.delay = 5 * 1000
-    this.duration = 20 * 1000
+    this.delay = 15 * 1000
+    this.duration = 61 * 1000
   }
 
   initGames () {
@@ -68,7 +67,13 @@ class Game {
   }
 
   onEndHandler (handler) {
-    this.endHandler = handler
+    this.endHandler = game => {
+      game.users.sort((a, b) => {
+        return a.score - b.score
+      })
+      const winner = game.users[0].name
+      handler(game, winner)
+    }
   }
 
   generateNewGame () {

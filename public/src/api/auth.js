@@ -28,7 +28,6 @@ export async function getText (id) {
   const token = localStorage.getItem('jwt')
   const bearer = `Bearer ${token}`
   
-  console.log(bearer)
   if (token) {
     return fetch(`/text/${id}`, {
       method: 'get',

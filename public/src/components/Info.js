@@ -10,13 +10,15 @@ class Info extends View {
   }
 
   showStartMessage (startDelay) {
-    this.element.style.display = ''
+    this.show()
     this.element.innerHTML = `The game will start in ${startDelay} seconds`
   }
-
-  hide () {
-    this.element.style.display = 'none'
+  showWinnerMessage(name){
+    this.show()
+    this.element.innerHTML = `Player ${name} won the race`
   }
+
+
 }
 
 export default Info

@@ -21,6 +21,7 @@ export default class KeyRace extends View {
   }
   stop () {
     this.isStarted = false
+    this.hide()
   }
 
   initDOM () {
@@ -47,12 +48,15 @@ export default class KeyRace extends View {
         this.current = this.rest.shift()
         this.submitHandler()
         this.renderTextData()
-        
-        if (this.rest.length === 0) {
+        if (this.current === undefined) {
+          console.log('stop')
           this.stop()
         }
       }
     })
+  }
+  onEnd (handler) {
+    this.endHandler = handler
   }
 
   onSubmit (handler) {

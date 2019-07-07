@@ -13,7 +13,7 @@ export default class PlayersView extends View {
     this.hide()
   }
 
-  render (players, replace) {
+  render (players) {
     this.show()
     this.elements = players.map(player => {
       const element = this.createElement({ tagName: 'li', className: 'player' })
@@ -26,10 +26,12 @@ export default class PlayersView extends View {
       return element
     })
 
-    if (replace) {
-      const newNode = this.createElement({ tagName: 'ul', className: 'players-view' })
+    if (this.list.childNodes.length > 0) {
+      const newNode = this.createElement({ tagName: 'ul', className: 'players-list' })
+      
       newNode.append(...this.elements)
-      this.element.replaceWith(newNode)
+      this.element.replaceChild(newNode, this.list)
+      this.list = newNode
     } else {
       this.list.append(...this.elements)
     }

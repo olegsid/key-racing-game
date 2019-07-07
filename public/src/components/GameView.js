@@ -6,6 +6,7 @@ import View from './view'
 import Info from './Info'
 import PlayersView from './PlayersView'
 import Timer from './Timer'
+import Button from './Button'
 
 export default class GameView extends View {
   constructor (root) {
@@ -22,8 +23,15 @@ export default class GameView extends View {
     this.keyRace = new KeyRace()
     this.playersView = new PlayersView()
     this.timer = new Timer()
+    this.button = new Button()
 
-    this.element.append(this.playersView.element, this.info.element, this.keyRace.element, this.timer.element)
+    this.element.append(
+      this.playersView.element,
+      this.info.element,
+      this.keyRace.element,
+      this.timer.element,
+      this.button.element
+    )
 
     document.querySelector(root).appendChild(this.element)
   }
@@ -36,9 +44,9 @@ export default class GameView extends View {
     })
 
     socket.on('joined', async payload => {
+      console.log(payload.game.room)
       const currentDate = moment(new Date())
       const startDate = moment(payload.game.startDate)
-      console.log(payload.game.room)
       const delay = startDate.diff(currentDate, 'seconds')
 
       this.info.showStartMessage(delay)
@@ -49,6 +57,7 @@ export default class GameView extends View {
 
     socket.on('start', payload => {
       const users = payload.game.users
+      console.log(users)
       const duration = payload.duration
 
       this.info.hide()
@@ -58,8 +67,6 @@ export default class GameView extends View {
     })
 
     this.keyRace.onSubmit(() => {
-      console.log('submit')
-      console.log(this.keyRace.entered.length)
       socket.emit('submit', {
         score: this.keyRace.entered.length,
         token: jwt
@@ -67,12 +74,27 @@ export default class GameView extends View {
     })
 
     socket.on('updateScore', ({ game: { users } }) => {
-      console.log('update')
-      this.playersView.render(users, true)
+      this.playersView.render(users)
     })
 
-    socket.on('end', payload => {
-      console.log(payload)
+    socket.on('endGame', ({ game, winner }) => {
+      this.keyRace.hide()
+      this.timer.hide()
+      this.keyRace.isStarted = false
+      this.info.showWinnerMessage(winner)
+      this.button.show()
+      socket.disconnect()
+    })
+
+    this.button.onClick(() => {
+      location.reload()
+    })
+
+    socket.on('disconnect', () => {
+      socket.open()
+      // socket.emit('join', {
+      //   token: jwt
+      // })
     })
   }
 }

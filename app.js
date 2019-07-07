@@ -33,15 +33,16 @@ app.use('/game', game)
 app.use('/text', text)
 
 Game.onJoinHandler(game => {
-  io.to(game.room).emit('joined', { game, duration: Game.duration })
+  io.to(Game.nextGame.room).emit('joined', { game, duration: Game.duration })
 })
 
 Game.onStartHandler(game => {
-  io.to(game.room).emit('start', { game, duration: Game.duration })
+  io.to(Game.nextGame.room).emit('start', { game, duration: Game.duration })
 })
 
-Game.onEndHandler(game => {
-  io.to(game.room).emit('end', { msg: 'end', game })
+Game.onEndHandler((game, winner) => {
+  console.log('ended')
+  io.to(Game.currentGame.room).emit('endGame', { game, winner })
 })
 
 io.on('connection', socket => {
@@ -70,11 +71,13 @@ io.on('connection', socket => {
   })
 
   socket.on('submit', payload => {
-    const { score, token } = payload
     const index = Game.currentGame.users.findIndex(user => user.id === socket.id)
-    Game.currentGame.users[index].score = score;
-    io.to(Game.currentGame.room).emit('updateScore', { game:Game.currentGame })
+    Game.currentGame.users[index].score = payload.score
+
+    io.to(Game.currentGame.room).emit('updateScore', { game: Game.currentGame })
   })
+
+
 })
 
 server.listen(3001)
