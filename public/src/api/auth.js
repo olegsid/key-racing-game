@@ -23,3 +23,21 @@ export function isAuthentified () {
   const jwt = localStorage.getItem('jwt')
   return !!jwt
 }
+
+export async function getText (id) {
+  const token = localStorage.getItem('jwt')
+  const bearer = `Bearer ${token}`
+  
+  console.log(bearer)
+  if (token) {
+    return fetch(`/text/${id}`, {
+      method: 'get',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: bearer
+      }
+    })
+  } else {
+    console.log('invalid token')
+  }
+}

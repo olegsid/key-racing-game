@@ -1,3 +1,59 @@
-body{
- background-color: lightblue;
+body {
+  background-color: lightblue;
+  margin: 0;
+  padding: 0;
+  font-size: 24px;
+  font-family: Arial, Helvetica, sans-serif
+}
+
+.game-view {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.info-msg {
+  margin: auto;
+}
+
+.players-view {
+  width: 80%;
+  height: 300px;
+  overflow: auto;
+  margin: 2rem auto;
+  list-style: none;
+}
+
+.player {
+  display: flex;
+  justify-content: space-between;
+}
+
+.player__name,
+.player__score {
+  font-weight: bold;
+}
+
+.key__race-container {
+  height: 450px;
+  margin: auto 3rem;
+}
+
+.key__entered {
+  color: green
+}
+
+.key__current {
+  color: blue;
+  background-color: white;
+}
+
+.timer {
+  height: 2rem;
+  align-self: flex-end;
+  margin-right: 2rem;
+  margin-bottom: 2rem;
+  text-align: right;
 }

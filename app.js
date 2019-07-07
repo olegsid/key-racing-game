@@ -4,10 +4,12 @@ const cookieParser = require('cookie-parser')
 const logger = require('morgan')
 const bodyParser = require('body-parser')
 const passport = require('passport')
+const jwt = require('jsonwebtoken')
 
 const indexRouter = require('./routes/index')
 const login = require('./routes/login')
 const game = require('./routes/game')
+const text = require('./routes/text')
 
 const app = express()
 const server = require('http').createServer(app)
@@ -27,47 +29,53 @@ app.use(express.static(path.join(__dirname, 'public')))
 
 app.use('/', indexRouter)
 app.use('/login', login)
-app.use('/game', /* passport.authenticate('jwt'), */ game)
+app.use('/game', game)
+app.use('/text', text)
 
-app.get('/chat', passport.authenticate('jwt'), function (req, res) {
-  res.sendFile(path.join(__dirname, 'chat.html'))
+Game.onJoinHandler(game => {
+  io.to(game.room).emit('joined', { game, duration: Game.duration })
 })
 
-/** game engine TODO MOVE to some file */
-
-Game.onStartHandler(({ room, startDate }) => {
-  io.to(room).emit('start', { users, startDate, duration: Game.duration })
+Game.onStartHandler(game => {
+  io.to(game.room).emit('start', { game, duration: Game.duration })
 })
 
-Game.onEndHandler(({ room, startDate }) => {
-  io.to(room).emit('end', "thats all" )
+Game.onEndHandler(game => {
+  io.to(game.room).emit('end', { msg: 'end', game })
 })
-
 
 io.on('connection', socket => {
   socket.on('join', ({ token }) => {
     const userLogin = jwt.decode(token).login
-    const user = { name: userLogin, isActive: true, id: socket.id }
-    
-    const room = Game.join(user) 
+    const user = {
+      name: userLogin,
+      isActive: true,
+      id: socket.id,
+      score: 0,
+      finishTime: 0
+    }
+    const room = Game.join(user)
+
     socket.join(room)
     Game.willStart()
   })
 
   socket.on('disconnect', () => {
-    Game.disconnectUser(socket.id)
+    try {
+      console.log('disconnect')
+      Game.disconnectUser(socket.id)
+    } catch (err) {
+      console.log(err)
+    }
   })
 
-  socket.on('submitMessage', payload => {
-    const userLogin = jwt.decode(token).login
-    socket.broadcast.emit('newMessage', { message, user: userLogin })
-    socket.emit('newMessage', { message, user: userLogin })
+  socket.on('submit', payload => {
+    const { score, token } = payload
+    const index = Game.currentGame.users.findIndex(user => user.id === socket.id)
+    Game.currentGame.users[index].score = score;
+    io.to(Game.currentGame.room).emit('updateScore', { game:Game.currentGame })
   })
-
-  // socket.emit('game end', { results})
-
-  // socket.emit('game start')
 })
 
+server.listen(3001)
 module.exports = app
-server.listen(4200)

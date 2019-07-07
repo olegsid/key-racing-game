@@ -1,21 +1,16 @@
 import './styles/game.scss'
 import { isAuthentified } from './api/auth'
-import io from 'socket.io-client'
+import GameView from './components/GameView'
 
-const socket = io('http://localhost:4200')
 
 const redirectToHomePage = () => location.replace('/')
 
-const onload = () => {
+const startApp = () => {
   if (!isAuthentified()) {
     redirectToHomePage()
   } else {
-    const jwt = localStorage.getItem('jwt')
-
-    socket.emit('join', {
-      token: jwt
-    })
+    const gameApp = new GameView('#app');
   }
 }
 
-window.onload = onload
+window.onload = startApp
